@@ -1,0 +1,27 @@
+---
+
+### This workflow automatically scans the bitnami/kubectl docker images for
+### new tags
+
+name: 'Publish on dependency update'
+
+on:
+  schedule:
+    # Note ever 6 hours is also used as the maximum scan age to prevent
+    # duplication
+    - cron: "17 */6 * * *"
+
+jobs:
+  scan-dependencies:
+    uses: ./.github/workflows/scan_dependencies.yml
+    secrets: inherit
+    with:
+      max_age_minutes: 360 # Every 6 hours
+
+  publish:
+    uses: ./.github/workflows/publish.yml
+    needs: 
+      - scan-dependencies
+    secrets: inherit
+    with:
+      kubectl_tags: ${{ needs.scan-dependencies.outputs.result }}

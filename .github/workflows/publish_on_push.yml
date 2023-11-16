@@ -1,0 +1,30 @@
+---
+
+### This workflow automatically scans the bitnami/kubectl docker images for
+### new tags
+
+name: 'Publish on push'
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  scan-dependencies:
+    uses: ./.github/workflows/scan_dependencies.yml
+    secrets: inherit
+    with:
+      max_age_minutes: 40360 # Build everything from the last 4 weeks
+
+  publish:
+    uses: ./.github/workflows/publish.yml
+    needs: 
+      - scan-dependencies
+    secrets: inherit
+    with:
+      kubectl_tags: ${{ needs.scan-dependencies.outputs.result }}

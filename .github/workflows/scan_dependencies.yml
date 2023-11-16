@@ -1,0 +1,37 @@
+---
+
+name: Scan Bitnami/kubectl Docker Repo
+
+on:
+  workflow_call:
+    inputs:
+      max_age_minutes: 
+        description: 'The oldest tags which will be found by the scan'
+        required: true
+        type: number
+    outputs:
+      result:
+        description: The updated tags
+        value: ${{ jobs.scan-dependencies.outputs.tags }}
+
+jobs:
+  scan-dependencies:
+    name: List Recent Updates
+    runs-on: ubuntu-latest
+    outputs:
+      tags: ${{ steps.print.outputs.tags }}
+    steps:
+      - name: Scan Docker Repository
+        uses: dhet/scan-docker-tags-action@v1.0.1
+        id: scan
+        with:
+          image: bitnami/kubectl
+          max-age-minutes: ${{ inputs.max_age_minutes }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          tag-regex: "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$"
+      - name: Print tags to array
+        id: print
+        run: |
+          as_json="{\"tags\":[\"$( echo ${{ steps.scan.outputs.tags }} | sed -e 's/,/\",\"/g' )\"]}"
+          echo "tags=$as_json" >> $GITHUB_OUTPUT
