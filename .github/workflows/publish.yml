@@ -17,7 +17,7 @@ jobs:
     strategy:
       # postgres versions can be added here
       matrix:
-        pg_version: [14, 15, 16]
+        pg_version: [15, 16, 17]
         kube_version: ${{ fromJson(inputs.kubectl_tags).tags }}
     steps:
       - name: Checkout
