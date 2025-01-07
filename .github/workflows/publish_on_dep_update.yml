@@ -9,7 +9,7 @@ on:
   schedule:
     # Note ever 6 hours is also used as the maximum scan age to prevent
     # duplication
-    - cron: "17 */6 * * *"
+    - cron: "17 */6 */2 * *"
 
 jobs:
   scan-dependencies:

@@ -17,7 +17,6 @@ jobs:
     strategy:
       # postgres versions can be added here
       matrix:
-        pg_version: [15, 16, 17]
         kube_version: ${{ fromJson(inputs.kubectl_tags).tags }}
     steps:
       - name: Checkout
@@ -40,7 +39,7 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           # list of Docker images to use as base name for tags
-          images: prbonham/kubectl-postgres-client-${{ matrix.pg_version }}
+          images: prbonham/kubectl-postgres-client
           # Docker tags based on the following events/attributes
           tags: |
             type=raw,value=${{ matrix.kube_version }},enable={{ is_default_branch }}
@@ -53,7 +52,6 @@ jobs:
           context: .
           platforms: linux/amd64, linux/arm64
           build-args: |
-            PG_VERSION=${{ matrix.pg_version }}
             KUBE_VERSION=${{ matrix.kube_version }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.create-publish-tags.outputs.tags }}
